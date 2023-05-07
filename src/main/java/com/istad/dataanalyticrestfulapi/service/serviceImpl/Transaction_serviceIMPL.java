@@ -8,16 +8,18 @@ import com.istad.dataanalyticrestfulapi.model.response.TransactionResponse;
 import com.istad.dataanalyticrestfulapi.repository.TransactionRepository;
 import com.istad.dataanalyticrestfulapi.service.Transaction_service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import com.istad.dataanalyticrestfulapi.repository.provider.TransactionProvider;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class Transaction_serviceIMPL implements Transaction_service {
     private final TransactionRepository transactionRepository;
-    private final TransactionMapper transactionMapper;
+    private final TransactionRepository transactionMapper;
     @Override
     public PageInfo<Transaction> getAllTransaction(int page, int size,  int filter) {
         PageHelper.startPage(page, size);
@@ -25,7 +27,15 @@ public class Transaction_serviceIMPL implements Transaction_service {
     }
 
     @Override
-    public int CreateTransaction(TransactionResponse transactionResponse) {
-        return transactionRepository.createNewTransaction(transactionResponse);
+    public int createTransaction(Transaction transaction) {
+        return transactionMapper.insertTransaction(transaction);
+    }
+    @Override
+    public int deleteTransaction(int id) {
+        return transactionMapper.deleteTransaction(id);
+    }
+    @Override
+    public int updateTransaction(Transaction transaction) {
+        return transactionMapper.updateTransaction(transaction);
     }
 }

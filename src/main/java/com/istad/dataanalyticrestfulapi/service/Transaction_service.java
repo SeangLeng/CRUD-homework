@@ -9,5 +9,7 @@ import java.util.List;
 
 public interface Transaction_service {
     PageInfo<Transaction> getAllTransaction(int page, int size, int filter);
-    int CreateTransaction(TransactionResponse transactionResponse);
+    int createTransaction(Transaction transaction);
+    int deleteTransaction(int id);
+    int updateTransaction(Transaction transaction);
 }

@@ -56,23 +56,16 @@ public class UserRestController {
         try {
             int userID = userService.createNewUser(request);
             if (userID > 0) {
-
                 User response = new User().setUsername(request.getUsername())
                         .setAddress(request.getAddress())
                         .setGender(request.getGender()).setUserId(userID);
-
                 return Response.<User>createSuccess().setPayload(response).setMessage("Create User Successfully").setSuccess(true);
             } else {
                 return Response.<User>badRequest().setMessage("Bad Request ! Failed to create user");
             }
-
-
         } catch (Exception ex) {
-
             return Response.<User>exception().setMessage("Exception occurs! Failed to create a new user ").setSuccess(false);
         }
-
-
     }
 
     @GetMapping("/user-accounts")

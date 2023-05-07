@@ -12,4 +12,5 @@ public class TransactionResponse {
     int receiver_account;
     double amount;
     String remark;
+    String transfer_at;
 }

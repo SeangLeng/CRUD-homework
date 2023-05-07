@@ -1,6 +1,7 @@
 package com.istad.dataanalyticrestfulapi.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.dialect.ReplaceSql;
 import com.istad.dataanalyticrestfulapi.mapper.TransactionMapper;
 import com.istad.dataanalyticrestfulapi.model.Transaction;
 import com.istad.dataanalyticrestfulapi.model.User;
@@ -10,8 +11,10 @@ import com.istad.dataanalyticrestfulapi.service.serviceImpl.Transaction_serviceI
 import com.istad.dataanalyticrestfulapi.utils.Response;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.executor.ExecutionPlaceholder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.rmi.server.ExportException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,23 +39,44 @@ public class TransactionController {
     }
 
     @PostMapping("/create-new-transaction")
-    Response<Transaction> createNewTransaction(@RequestBody TransactionResponse transactionResponse){
-        try {
-            int created = transactionService.CreateTransaction(transactionResponse);
-            if (created > 0) {
-                Transaction transaction = new Transaction()
-                        .setSender_account_id(transactionResponse.getSender_account_id())
-                        .setReceiver_account(transactionResponse.getReceiver_account())
-                        .setAmount(transactionResponse.getAmount())
-                        .setRemark(transactionResponse.getRemark());
-                return Response.<Transaction>createSuccess().setPayload(transaction).setSuccess(true)
-                        .setMessage("Transaction successfully created!");
-            }else{
-                return Response.<Transaction>badRequest().setMessage("Bad Request ! Failed to create transaction");
+    public Response<Transaction> createTransaction(@RequestBody Transaction transaction) {
+        int created = transactionService.createTransaction(transaction);
+        if (created > 0) {
+            return Response.<Transaction>ok().setPayload(transaction)
+                    .setSuccess(true)
+                    .setMessage("successfully! added");
+        } else {
+            return Response.<Transaction>notFound().setPayload(null)
+                    .setSuccess(false)
+                    .setMessage("Try again! Transaction not found!");
+        }
+    }
+    @DeleteMapping("remove-transaction/{id}")
+    public Response<Void> deleteTransaction(@PathVariable int id) {
+        try{
+            int deleted = transactionService.deleteTransaction(id);
+            if (deleted > 0) {
+                return Response.<Void>ok().setMessage("Successfully deleted").setSuccess(true);
+            } else {
+                return Response.<Void>notFound().setMessage("Transaction not found! none data to delete!");
             }
-
         }catch (Exception e){
-            return  Response.<Transaction>notFound().setSuccess(false).setMessage("Transaction not found!");
+            return Response.<Void>exception().setSuccess(true).setMessage("Data not found!");
+        }
+    }
+    @PutMapping ("update/{id}")
+    public Response<Void> updateTransaction(@PathVariable int id,
+                                            @RequestBody Transaction transaction) {
+        try {
+            transaction.setId(id);
+            int updated = transactionService.updateTransaction(transaction);
+            if (updated > 0) {
+                return Response.<Void>ok().setSuccess(true).setMessage("SuccessUpdate!");
+            } else {
+                return Response.<Void>notFound().setSuccess(false).setMessage("Update failed!");
+            }
+        }catch (Exception e){
+            return Response.<Void>exception().setSuccess(false).setMessage("Data not found!");
         }
     }
 }
