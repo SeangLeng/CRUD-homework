@@ -27,6 +27,7 @@ public class TransactionProvider {
             VALUES("receiver_account", "#{receiver_account}");
             VALUES("amount", "#{amount}");
             VALUES("remark", "#{remark}");
+            VALUES("transfer_at", "localtimestamp");
         }}.toString();
     }
     public String deleteTransaction(@Param("id") int id) {
@@ -42,6 +43,7 @@ public class TransactionProvider {
             SET("receiver_account = #{receiver_account}");
             SET("amount = #{amount}");
             SET("remark = #{remark}");
+            SET("transfer_at = localtimestamp");
             WHERE("id = #{id}");
         }}.toString();
     }
