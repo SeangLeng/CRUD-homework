@@ -5,15 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
 public class Transaction {
     private int id;
-    private int sender_account_id;
-    private int receiver_account;
+    private UserTransaction sender;
+    private UserTransaction receiver;
     private double amount;
     private String remark;
-    private String transfer_at;
+    private Date transfer_at;
 }

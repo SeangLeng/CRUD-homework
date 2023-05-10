@@ -9,14 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TransactionProvider {
-    public static String getAllTransaction(int filter){
+    public static String getAllTransaction(){
         return new SQL(){{
-
             SELECT("*");
             FROM("transaction_tb");
-            if (filter!=0){
-                WHERE("sender_account_id = #{filter}");
-            }
         }}.toString();
     }
 

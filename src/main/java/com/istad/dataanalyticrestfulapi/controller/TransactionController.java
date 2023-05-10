@@ -1,39 +1,30 @@
 package com.istad.dataanalyticrestfulapi.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.dialect.ReplaceSql;
-import com.istad.dataanalyticrestfulapi.mapper.TransactionMapper;
 import com.istad.dataanalyticrestfulapi.model.Transaction;
-import com.istad.dataanalyticrestfulapi.model.User;
-import com.istad.dataanalyticrestfulapi.model.response.AccountResponse;
-import com.istad.dataanalyticrestfulapi.model.response.TransactionResponse;
 import com.istad.dataanalyticrestfulapi.service.serviceImpl.Transaction_serviceIMPL;
 import com.istad.dataanalyticrestfulapi.utils.Response;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.executor.ExecutionPlaceholder;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.XSlf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.rmi.server.ExportException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/transaction")
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionController {
     private final Transaction_serviceIMPL transactionService;
-    private final TransactionMapper transactionMapper;
     @GetMapping("/getAllTransaction")
     Response<PageInfo<Transaction>> getAllTransaction(@RequestParam(defaultValue = "1") int page,
-                                                      @RequestParam(defaultValue = "5") int size,
-                                                      @RequestParam(defaultValue = "0", required = false)  int filter){
+                                                      @RequestParam(defaultValue = "25") int size){
         try {
-            PageInfo<Transaction> transaction_data = transactionService.getAllTransaction(page, size, filter);
+            PageInfo<Transaction> transaction_data = transactionService.getAllTransaction(page, size);
             return Response.<PageInfo<Transaction>>ok().setPayload(transaction_data).setMessage("You got the data Successfully!");
         }catch (Exception e){
-            System.out.println("Error: " + e.getMessage());
+            System.out.println(e.getLocalizedMessage());
             return Response.<PageInfo<Transaction>>exception().setMessage("Error happened! data not found!");
         }
     }
