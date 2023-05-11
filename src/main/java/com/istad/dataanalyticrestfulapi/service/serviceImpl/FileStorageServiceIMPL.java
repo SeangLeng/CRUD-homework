@@ -1,14 +1,17 @@
 package com.istad.dataanalyticrestfulapi.service.serviceImpl;
 
 import com.istad.dataanalyticrestfulapi.service.FileService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -46,17 +49,60 @@ public class FileStorageServiceIMPL implements FileService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     @Override
     public String deleteFileByName(String filename) {
-        return null;
+        // Find location that your file located
+        Path imagesLocation = Paths.get(serverLocation);
+        List<File> allFile = List.of(Objects.requireNonNull(imagesLocation.toFile().listFiles()));
+
+        // filter file that we are going to delete.
+        File deleteFile = allFile.stream().filter(file -> file.getName().equals(filename)).findFirst().orElse(null);
+
+        // delete file by name
+        if (deleteFile != null){
+            try {
+                Files.delete(deleteFile.toPath());
+                return "Delete file successfully";
+            } catch (IOException e) {
+                System.out.println("Error delete file by name : " + e.getMessage());
+                return "File " + filename + " does not exist!";
+            }
+        }else{
+            // cannot delete because  there is no images.
+            return "Filename does not exist!";
+        }
     }
 
     @Override
     public String deleteAllFiles() {
+        Path imagesLocation = Paths.get(serverLocation);
+        List<File> allFile = List.of(Objects.requireNonNull(imagesLocation.toFile().listFiles()));
+        if (allFile.isEmpty()){
+            return "There are no file to delete!";
+        }else{
+            FileSystemUtils.deleteRecursively(imagesLocation.toFile());
+        }
         return null;
     }
+
+    @Override
+    public Resource loadFileAsResource(String filename) {
+        Path imageLocation = Paths.get(serverLocation);
+        try {
+            Path file = imageLocation.resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists()){
+                return resource;
+            }else{
+                throw new RuntimeException("Cannot read the file!");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Cannot resolve image!");
+        }
+    }
+
 }
