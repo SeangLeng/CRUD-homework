@@ -31,17 +31,9 @@ public class FileRestController {
     private final long MAX_FILE_SIZE = 1024 * 2024 * 5;
     @PostMapping("/file-upload")
     public Response<FileResponse> fileUpload(@RequestParam("file") MultipartFile file){
-        try {
-            FileResponse response = uploadFile(file);
-            return Response.<FileResponse>ok()
-                    .setPayload(response)
-                    .setMessage("Successfully upload file");
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Failed to upload images!" + e.getMessage());
-            return Response.<FileResponse>exception()
-                    .setMessage("Failed to upload an image! exception occurred!");
-        }
+        FileResponse response = uploadFile(file);
+        return Response.<FileResponse>ok().setPayload(response)
+                .setMessage("Successfully upload a file ");
     }
 
     // upload multipart file :
@@ -68,16 +60,23 @@ public class FileRestController {
         String result = fileService.deleteAllFiles();
         return Response.<String>deleteSuccess().setPayload(result);
     }
-    private FileResponse uploadFile(MultipartFile file){
-        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty!");
-        // extension
-        String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename()); ;
-        assert fileExtension != null;
-        if(!ALLOWED_EXTENSION.contains(fileExtension.toLowerCase())){
-            throw new IllegalArgumentException("Your file type is not allow here!!!");
+    private FileResponse uploadFile(MultipartFile file) {
+        if(file.isEmpty())
+            throw new IllegalArgumentException("Files cannot be empty");
+
+        // files size
+        if(file.getSize()> MAX_FILE_SIZE)
+            throw new MaxUploadSizeExceededException(MAX_FILE_SIZE);
+        // extensions
+
+        // the old way
+//        String[] fileParts = file.getOriginalFilename().split("\\.");
+//        String extension = fileParts[1];
+
+        String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        if(!ALLOWED_EXTENSION.contains(extension.toLowerCase())){
+            throw new IllegalArgumentException("Allowed Extension are 'jpg', 'jpeg', 'png' ");
         }
-        // file size
-        if (file.getSize() > MAX_FILE_SIZE) throw new MaxUploadSizeExceededException(MAX_FILE_SIZE);
 
         String filename = fileService.uploadFile(file);
         String fileDownloadUri = ServletUriComponentsBuilder

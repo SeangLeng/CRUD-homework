@@ -40,7 +40,7 @@ public class GlobalExeptionHandler extends ResponseEntityExceptionHandler {
 
     }
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(MaxUploadSizeExceededException ex) {
+    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
 
         return new ResponseEntity<>(
                 Response.<Object>badRequest().setMessage(ex.getMessage()).setSuccess(false)
