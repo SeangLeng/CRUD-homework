@@ -10,7 +10,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileRestController {
     private final FileService fileService;
+    // allow extension
+    private final List<String> ALLOWED_EXTENSION = List.of("jpb", "png", "jpeg");
+    private final long MAX_FILE_SIZE = 1024 * 2024 * 5;
     @PostMapping("/file-upload")
     public Response<FileResponse> fileUpload(@RequestParam("file") MultipartFile file){
         try {
@@ -64,10 +69,19 @@ public class FileRestController {
         return Response.<String>deleteSuccess().setPayload(result);
     }
     private FileResponse uploadFile(MultipartFile file){
+        if (file.isEmpty()) throw new IllegalArgumentException("File cannot be empty!");
+        // extension
+        String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename()); ;
+        assert fileExtension != null;
+        if(!ALLOWED_EXTENSION.contains(fileExtension.toLowerCase())){
+            throw new IllegalArgumentException("Your file type is not allow here!!!");
+        }
+        // file size
+        if (file.getSize() > MAX_FILE_SIZE) throw new MaxUploadSizeExceededException(MAX_FILE_SIZE);
+
         String filename = fileService.uploadFile(file);
         String fileDownloadUri = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/file-service/download-file")
-                // we wil connect to download-file function later.
+                .fromCurrentContextPath().path("/file-service/download-file/")
                 .path(filename).toUriString();
 
         return new FileResponse().setFilename(filename)
