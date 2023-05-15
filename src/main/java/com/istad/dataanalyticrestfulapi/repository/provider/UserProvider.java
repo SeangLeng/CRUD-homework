@@ -5,7 +5,6 @@ import org.apache.ibatis.jdbc.SQL;
 public class UserProvider {
     public static String getALlUsers(String filterName){
         return new SQL(){{
-
             SELECT("*");
             FROM("users_tb");
             if (!filterName.isEmpty()){
